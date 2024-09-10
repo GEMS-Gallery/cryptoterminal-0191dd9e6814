@@ -1,0 +1,89 @@
+body {
+    background-color: #000000;
+    color: #00FF00;
+    font-family: 'Courier New', monospace;
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+#terminal {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+#header {
+    margin-bottom: 20px;
+}
+
+#content {
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+#footer {
+    display: flex;
+    align-items: center;
+}
+
+#prompt {
+    margin-right: 10px;
+}
+
+#command-input {
+    background-color: transparent;
+    border: none;
+    color: #00FF00;
+    font-family: 'Courier New', monospace;
+    font-size: 16px;
+    flex-grow: 1;
+    outline: none;
+}
+
+.post {
+    margin-bottom: 20px;
+    border-bottom: 1px solid #4A4A4A;
+    padding-bottom: 10px;
+}
+
+.post-title {
+    font-weight: bold;
+}
+
+.post-timestamp {
+    color: #4A4A4A;
+    font-size: 0.8em;
+}
+
+.post-tags {
+    color: #FFB000;
+    font-size: 0.9em;
+}
+
+.blink {
+    animation: blink-animation 1s steps(5, start) infinite;
+}
+
+@keyframes blink-animation {
+    to {
+        visibility: hidden;
+    }
+}
+
+.spinner {
+    display: inline-block;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { content: '|'; }
+    25% { content: '/'; }
+    50% { content: '-'; }
+    75% { content: '\\'; }
+    100% { content: '|'; }
+}
