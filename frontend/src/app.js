@@ -1,6 +1,12 @@
 import { backend } from 'declarations/backend';
 
-const content = document.getElementById('content');
+let content = document.getElementById('content');
+if (!content) {
+    content = document.createElement('div');
+    content.id = 'content';
+    document.body.appendChild(content);
+}
+
 const commandInput = document.getElementById('command-input');
 const newPostBtn = document.getElementById('new-post-btn');
 const newPostModal = document.getElementById('new-post-modal');
@@ -10,71 +16,79 @@ const cancelPostBtn = document.getElementById('cancel-post');
 let currentView = 'list';
 let currentPostId = null;
 
+function setContent(html) {
+    if (content) {
+        content.innerHTML = html;
+    } else {
+        console.error('Content element not found');
+    }
+}
+
 async function displayPosts() {
-    content.innerHTML = '<div class="spinner">|</div> Loading posts...';
+    setContent('<div class="spinner">|</div> Loading posts...');
     try {
         const posts = await backend.getPosts();
-        content.innerHTML = posts.map(post => `
+        setContent(posts.map(post => `
             <div class="post">
                 <div class="post-title">${post.title}</div>
                 <div class="post-timestamp">${new Date(Number(post.timestamp) / 1000000).toLocaleString()}</div>
                 <div class="post-tags">${post.tags.join(', ')}</div>
                 <div>${post.content.substring(0, 100)}...</div>
             </div>
-        `).join('');
+        `).join(''));
     } catch (error) {
-        content.innerHTML = `Error: ${error.message}`;
+        setContent(`Error: ${error.message}`);
     }
 }
 
 async function displayPost(id) {
-    content.innerHTML = '<div class="spinner">|</div> Loading post...';
+    setContent('<div class="spinner">|</div> Loading post...');
     try {
         const post = await backend.getPost(id);
         if (post) {
-            content.innerHTML = `
+            setContent(`
                 <div class="post">
                     <div class="post-title">${post.title}</div>
                     <div class="post-timestamp">${new Date(Number(post.timestamp) / 1000000).toLocaleString()}</div>
                     <div class="post-tags">${post.tags.join(', ')}</div>
                     <div>${post.content}</div>
                 </div>
-            `;
+            `);
             currentPostId = id;
             currentView = 'post';
         } else {
-            content.innerHTML = 'Post not found.';
+            setContent('Post not found.');
         }
     } catch (error) {
-        content.innerHTML = `Error: ${error.message}`;
+        setContent(`Error: ${error.message}`);
     }
 }
 
 async function createPost(title, content, tags) {
-    content.innerHTML = '<div class="spinner">|</div> Creating post...';
+    setContent('<div class="spinner">|</div> Creating post...');
     try {
         const id = await backend.createPost(title, content, tags);
-        content.innerHTML = `Post created with ID: ${id}`;
+        setContent(`Post created with ID: ${id}`);
         setTimeout(displayPosts, 2000);
     } catch (error) {
-        content.innerHTML = `Error: ${error.message}`;
+        setContent(`Error: ${error.message}`);
     }
 }
 
 async function searchPosts(query) {
-    content.innerHTML = '<div class="spinner">|</div> Searching posts...';
+    setContent('<div class="spinner">|</div> Searching posts...');
     try {
         const posts = await backend.searchPosts(query);
-        content.innerHTML = posts.map(post => `
+        setContent(posts.map(post => `
             <div class="post">
                 <div class="post-title">${post.title}</div>
                 <div class="post-timestamp">${new Date(Number(post.timestamp) / 1000000).toLocaleString()}</div>
                 <div class="post-tags">${post.tags.join(', ')}</div>
                 <div>${post.content.substring(0, 100)}...</div>
             </div>
-        `).join('');
+        `).join(''));
     } catch (error) {
-        content.innerHTML = `Error: ${error.message}`;
+        setContent(`Error: ${error.message}`);
     }
 }
 
@@ -90,7 +104,7 @@ function processCommand(command) {
             if (parts[1]) {
                 displayPost(parseInt(parts[1]));
             } else {
-                content.innerHTML = 'Usage: view [post_id]';
+                setContent('Usage: view [post_id]');
             }
             break;
         case 'create':
@@ -100,59 +114,82 @@ function processCommand(command) {
             if (parts[1]) {
                 searchPosts(parts.slice(1).join(' '));
             } else {
-                content.innerHTML = 'Usage: search [query]';
+                setContent('Usage: search [query]');
             }
             break;
         case 'help':
-            content.innerHTML = `
+            setContent(`
                 Available commands:
                 - list: Display all posts
                 - view [post_id]: View a specific post
                 - create: Create a new post
                 - search [query]: Search posts
                 - help: Display this help message
-            `;
+            `);
             break;
         default:
-            content.innerHTML = 'Unknown command. Type "help" for available commands.';
+            setContent('Unknown command. Type "help" for available commands.');
     }
 }
 
 function showNewPostModal() {
-    newPostModal.style.display = 'block';
+    if (newPostModal) {
+        newPostModal.style.display = 'block';
+    }
 }
 
 function hideNewPostModal() {
-    newPostModal.style.display = 'none';
-    document.getElementById('post-title').value = '';
-    document.getElementById('post-tags').value = '';
-    document.getElementById('post-content').value = '';
+    if (newPostModal) {
+        newPostModal.style.display = 'none';
+    }
+    const titleInput = document.getElementById('post-title');
+    const tagsInput = document.getElementById('post-tags');
+    const contentInput = document.getElementById('post-content');
+    if (titleInput) titleInput.value = '';
+    if (tagsInput) tagsInput.value = '';
+    if (contentInput) contentInput.value = '';
 }
 
-commandInput.addEventListener('keyup', function(event) {
-    if (event.key === 'Enter') {
-        const command = this.value.trim();
-        this.value = '';
-        processCommand(command);
-    }
-});
+if (commandInput) {
+    commandInput.addEventListener('keyup', function(event) {
+        if (event.key === 'Enter') {
+            const command = this.value.trim();
+            this.value = '';
+            processCommand(command);
+        }
+    });
+}
 
-newPostBtn.addEventListener('click', showNewPostModal);
+if (newPostBtn) {
+    newPostBtn.addEventListener('click', showNewPostModal);
+}
 
-submitPostBtn.addEventListener('click', async function() {
-    const title = document.getElementById('post-title').value;
-    const tags = document.getElementById('post-tags').value.split(',').map(tag => tag.trim());
-    const content = document.getElementById('post-content').value;
+if (submitPostBtn) {
+    submitPostBtn.addEventListener('click', async function() {
+        const titleInput = document.getElementById('post-title');
+        const tagsInput = document.getElementById('post-tags');
+        const contentInput = document.getElementById('post-content');
+        
+        if (titleInput && contentInput) {
+            const title = titleInput.value;
+            const tags = tagsInput ? tagsInput.value.split(',').map(tag => tag.trim()) : [];
+            const content = contentInput.value;
 
-    if (title && content) {
-        await createPost(title, content, tags);
-        hideNewPostModal();
-    } else {
-        alert('Title and content are required!');
-    }
-});
+            if (title && content) {
+                await createPost(title, content, tags);
+                hideNewPostModal();
+            } else {
+                alert('Title and content are required!');
+            }
+        } else {
+            console.error('Required input elements not found');
+        }
+    });
+}
 
-cancelPostBtn.addEventListener('click', hideNewPostModal);
+if (cancelPostBtn) {
+    cancelPostBtn.addEventListener('click', hideNewPostModal);
+}
 
 // Initial display
 displayPosts();
