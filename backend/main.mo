@@ -6,6 +6,7 @@ import Time "mo:base/Time";
 import Iter "mo:base/Iter";
 import HashMap "mo:base/HashMap";
 import Nat "mo:base/Nat";
+import Buffer "mo:base/Buffer";
 
 actor {
   type Post = {
@@ -17,7 +18,9 @@ actor {
   };
 
   stable var nextPostId: Nat = 0;
-  let posts = HashMap.HashMap<Nat, Post>(0, Nat.equal, Nat.hash);
+  stable var postEntries: [(Nat, Post)] = [];
+
+  var posts: HashMap.HashMap<Nat, Post> = HashMap.fromIter(postEntries.vals(), 0, Nat.equal, Nat.hash);
 
   public func createPost(title: Text, content: Text, tags: [Text]): async Nat {
     let id = nextPostId;
@@ -50,5 +53,14 @@ actor {
         Text.contains(Text.toLowercase(tag), #text searchLower)
       }) != null
     })
+  };
+
+  system func preupgrade() {
+    postEntries := Iter.toArray(posts.entries());
+  };
+
+  system func postupgrade() {
+    posts := HashMap.fromIter(postEntries.vals(), 0, Nat.equal, Nat.hash);
+    postEntries := [];
   };
 }
