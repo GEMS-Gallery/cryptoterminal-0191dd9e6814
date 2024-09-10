@@ -10,11 +10,22 @@
     <div id="terminal">
         <div id="header">
             <h1>Crypto Terminal Blog</h1>
+            <button id="new-post-btn">New Post</button>
         </div>
         <div id="content"></div>
         <div id="footer">
             <span id="prompt">$</span>
             <input type="text" id="command-input" autofocus>
+        </div>
+    </div>
+    <div id="new-post-modal" class="modal">
+        <div class="modal-content">
+            <h2>Create New Post</h2>
+            <input type="text" id="post-title" placeholder="Title">
+            <input type="text" id="post-tags" placeholder="Tags (comma-separated)">
+            <textarea id="post-content" placeholder="Content"></textarea>
+            <button id="submit-post">Submit</button>
+            <button id="cancel-post">Cancel</button>
         </div>
     </div>
     <script type="module" src="src/app.js"></script>

@@ -2,6 +2,10 @@ import { backend } from 'declarations/backend';
 
 const content = document.getElementById('content');
 const commandInput = document.getElementById('command-input');
+const newPostBtn = document.getElementById('new-post-btn');
+const newPostModal = document.getElementById('new-post-modal');
+const submitPostBtn = document.getElementById('submit-post');
+const cancelPostBtn = document.getElementById('cancel-post');
 
 let currentView = 'list';
 let currentPostId = null;
@@ -90,14 +94,7 @@ function processCommand(command) {
             }
             break;
         case 'create':
-            if (parts.length >= 4) {
-                const title = parts[1];
-                const tags = parts[2].split(',');
-                const content = parts.slice(3).join(' ');
-                createPost(title, content, tags);
-            } else {
-                content.innerHTML = 'Usage: create [title] [tags] [content]';
-            }
+            showNewPostModal();
             break;
         case 'search':
             if (parts[1]) {
@@ -111,7 +108,7 @@ function processCommand(command) {
                 Available commands:
                 - list: Display all posts
                 - view [post_id]: View a specific post
-                - create [title] [tags] [content]: Create a new post
+                - create: Create a new post
                 - search [query]: Search posts
                 - help: Display this help message
             `;
@@ -121,6 +118,17 @@ function processCommand(command) {
     }
 }
 
+function showNewPostModal() {
+    newPostModal.style.display = 'block';
+}
+
+function hideNewPostModal() {
+    newPostModal.style.display = 'none';
+    document.getElementById('post-title').value = '';
+    document.getElementById('post-tags').value = '';
+    document.getElementById('post-content').value = '';
+}
+
 commandInput.addEventListener('keyup', function(event) {
     if (event.key === 'Enter') {
         const command = this.value.trim();
@@ -128,6 +136,23 @@ commandInput.addEventListener('keyup', function(event) {
         processCommand(command);
     }
 });
+
+newPostBtn.addEventListener('click', showNewPostModal);
+
+submitPostBtn.addEventListener('click', async function() {
+    const title = document.getElementById('post-title').value;
+    const tags = document.getElementById('post-tags').value.split(',').map(tag => tag.trim());
+    const content = document.getElementById('post-content').value;
+
+    if (title && content) {
+        await createPost(title, content, tags);
+        hideNewPostModal();
+    } else {
+        alert('Title and content are required!');
+    }
+});
+
+cancelPostBtn.addEventListener('click', hideNewPostModal);
 
 // Initial display
 displayPosts();
