@@ -92,6 +92,31 @@ async function searchPosts(query) {
     }
 }
 
+async function fetchICPPrice() {
+    try {
+        const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=internet-computer&vs_currencies=usd');
+        const data = await response.json();
+        return data['internet-computer'].usd;
+    } catch (error) {
+        console.error('Error fetching ICP price:', error);
+        return null;
+    }
+}
+
+async function showICPPrice() {
+    setContent('<div class="spinner">|</div> Fetching ICP price...');
+    try {
+        const price = await fetchICPPrice();
+        if (price !== null) {
+            setContent(`Current ICP Price: $${price}`);
+        } else {
+            setContent('Unable to fetch ICP price. Please try again later.');
+        }
+    } catch (error) {
+        setContent(`Error: ${error.message}`);
+    }
+}
+
 function processCommand(command) {
     const parts = command.split(' ');
     const action = parts[0].toLowerCase();
@@ -117,6 +142,9 @@ function processCommand(command) {
                 setContent('Usage: search [query]');
             }
             break;
+        case 'price':
+            showICPPrice();
+            break;
         case 'help':
             setContent(`
                 Available commands:
@@ -124,6 +152,7 @@ function processCommand(command) {
                 - view [post_id]: View a specific post
                 - create: Create a new post
                 - search [query]: Search posts
+                - price: Show current ICP Price
                 - help: Display this help message
             `);
             break;
