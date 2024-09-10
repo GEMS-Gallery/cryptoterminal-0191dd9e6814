@@ -30,10 +30,10 @@ async function displayPosts() {
         const posts = await backend.getPosts();
         setContent(posts.map(post => `
             <div class="post">
-                <div class="post-title">${post.title}</div>
+                <div class="post-title">${post.title || 'Untitled'}</div>
                 <div class="post-timestamp">${new Date(Number(post.timestamp) / 1000000).toLocaleString()}</div>
-                <div class="post-tags">${post.tags.join(', ')}</div>
-                <div>${post.content.substring(0, 100)}...</div>
+                <div class="post-tags">${post.tags ? post.tags.join(', ') : 'No tags'}</div>
+                <div>${post.content ? post.content.substring(0, 100) + '...' : 'No content'}</div>
             </div>
         `).join(''));
     } catch (error) {
@@ -48,10 +48,10 @@ async function displayPost(id) {
         if (post) {
             setContent(`
                 <div class="post">
-                    <div class="post-title">${post.title}</div>
+                    <div class="post-title">${post.title || 'Untitled'}</div>
                     <div class="post-timestamp">${new Date(Number(post.timestamp) / 1000000).toLocaleString()}</div>
-                    <div class="post-tags">${post.tags.join(', ')}</div>
-                    <div>${post.content}</div>
+                    <div class="post-tags">${post.tags ? post.tags.join(', ') : 'No tags'}</div>
+                    <div>${post.content || 'No content'}</div>
                 </div>
             `);
             currentPostId = id;
@@ -81,10 +81,10 @@ async function searchPosts(query) {
         const posts = await backend.searchPosts(query);
         setContent(posts.map(post => `
             <div class="post">
-                <div class="post-title">${post.title}</div>
+                <div class="post-title">${post.title || 'Untitled'}</div>
                 <div class="post-timestamp">${new Date(Number(post.timestamp) / 1000000).toLocaleString()}</div>
-                <div class="post-tags">${post.tags.join(', ')}</div>
-                <div>${post.content.substring(0, 100)}...</div>
+                <div class="post-tags">${post.tags ? post.tags.join(', ') : 'No tags'}</div>
+                <div>${post.content ? post.content.substring(0, 100) + '...' : 'No content'}</div>
             </div>
         `).join(''));
     } catch (error) {
